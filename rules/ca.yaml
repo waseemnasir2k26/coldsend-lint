@@ -1,0 +1,107 @@
+jurisdiction: ca
+name: CASL (Canada)
+regime: consent
+summary: >-
+  CASL is a consent-first regime: sending a commercial electronic message to a
+  Canadian recipient requires express or implied consent BEFORE the send.
+  Implied consent covers an existing business relationship and conspicuously
+  published business addresses where the message is relevant to that role.
+  Every message must identify the sender, give contact information valid for at
+  least 60 days, and carry a working unsubscribe that is honoured within 10
+  business days. Penalties run to CAD 1,000,000 for individuals and
+  CAD 10,000,000 for organisations.
+applies_to: ["CA"]
+
+rules:
+  - id: CA-CONSENT-NOT-EVIDENCED
+    severity: error
+    title: No express or implied consent basis stated
+    what: >-
+      Under CASL you need consent before you send, and in an investigation the
+      burden of proving it is on you. Nothing in this copy points at express
+      consent, an existing business relationship, or a conspicuously published
+      address relevant to the recipient's role.
+    fix: >-
+      Say which basis you are relying on, for example "I am writing to the
+      address published on your firm's contact page, and this message concerns
+      your role there" (conspicuous publication), or send only to recipients
+      whose express consent you have logged.
+    citation: "CASL S.C. 2010 c. 23, s. 6(1) and s. 10(9)"
+    check:
+      type: require_any
+      target: body
+      patterns:
+        - "you (?:opted in|signed up|subscribed|consented|gave us permission|requested)"
+        - "with your consent"
+        - "existing business relationship"
+        - "conspicuously published"
+        - "published on your (?:firm|company|website|contact page|site)"
+        - "(?:address|email|details) (?:is |was )?publicly (?:listed|published|available)"
+        - "(?:found|got|obtained) your (?:address|email|details|contact) on your (?:website|site|contact page)"
+
+  - id: CA-SENDER-NOT-IDENTIFIED
+    severity: error
+    title: The sender is not identified
+    what: >-
+      Section 6(2)(a) requires the message to identify the person who sent it
+      and, if different, the person on whose behalf it is sent. No named sender
+      and/or no identifiable business was found.
+    fix: >-
+      Name yourself and the organisation you are sending for.
+    citation: "CASL s. 6(2)(a); Electronic Commerce Protection Regulations s. 2(1)"
+    check:
+      type: sender_identity
+
+  - id: CA-CONTACT-INFO-MISSING
+    severity: error
+    title: No mailing address for the sender
+    what: >-
+      The regulations require a mailing address plus a telephone number, email
+      address or web address, and that contact information must stay valid for
+      at least 60 days after the message is sent. No postal address was detected.
+    fix: >-
+      Add the mailing address to the footer and keep it live for 60 days.
+    citation: "Electronic Commerce Protection Regulations (CRTC) s. 2(2)"
+    check:
+      type: postal_address
+
+  - id: CA-UNSUB-MISSING
+    severity: error
+    title: No unsubscribe mechanism
+    what: >-
+      Every commercial electronic message must set out an unsubscribe mechanism
+      in a way that is clearly and prominently displayed and can be readily
+      performed.
+    fix: >-
+      Add an unsubscribe link or a reply-based opt-out, and honour it within 10
+      business days.
+    citation: "CASL s. 6(2)(c) and s. 11(1)"
+    check:
+      type: unsubscribe_present
+      keywords:
+        - "unsubscribe"
+        - "opt[- ]?out"
+        - "stop receiving"
+        - "no longer (?:wish|want) to (?:hear|receive)"
+        - "reply .{0,20}\\bstop\\b"
+        - "d[ée]sabonn"
+
+  - id: CA-UNSUB-NOT-READILY-PERFORMED
+    severity: error
+    title: The unsubscribe cannot be readily performed
+    what: >-
+      Section 11 requires the unsubscribe mechanism to be able to be readily
+      performed. An unsubscribe with no working link, mailto or reply
+      instruction does not meet that bar.
+    fix: >-
+      Attach a real merged URL or a monitored mailto to the unsubscribe line.
+    citation: "CASL s. 11(1)(a)"
+    check:
+      type: unsubscribe_actionable
+      keywords:
+        - "unsubscribe"
+        - "opt[- ]?out"
+        - "stop receiving"
+      reply_optout_patterns:
+        - "reply .{0,25}\\b(stop|unsubscribe|remove|no)\\b"
+        - "reply with .{0,15}(stop|unsubscribe|remove)"

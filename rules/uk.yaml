@@ -1,0 +1,94 @@
+jurisdiction: uk
+name: PECR + UK GDPR (United Kingdom)
+regime: soft opt-in
+summary: >-
+  PECR regulation 22 requires consent for direct marketing email to individual
+  subscribers, with a narrow "soft opt-in" for people who bought from you and
+  were offered an opt-out at the time. Corporate subscribers (limited companies,
+  LLPs) may be emailed without consent, but sole traders and unincorporated
+  partnerships count as individuals. Regulation 23 bans concealing sender
+  identity and requires a valid contact address in every message.
+applies_to: ["GB", "UK"]
+
+rules:
+  - id: UK-UNSUB-MISSING
+    severity: error
+    title: No opt-out mechanism in the message
+    what: >-
+      Every direct-marketing email must give a simple means of refusing further
+      messages, free of charge except transmission cost.
+    fix: >-
+      Add an unsubscribe link or an explicit "reply STOP" instruction to the
+      footer.
+    citation: "PECR reg. 22(3)(b); reg. 23(b)"
+    check:
+      type: unsubscribe_present
+      keywords:
+        - "unsubscribe"
+        - "opt[- ]?out"
+        - "stop receiving"
+        - "no longer (?:wish|want) to (?:hear|receive)"
+        - "reply .{0,20}\\bstop\\b"
+
+  - id: UK-IDENTITY-CONCEALED
+    severity: error
+    title: Sender identity is not clear
+    what: >-
+      Regulation 23 prohibits sending marketing email where the identity of the
+      sender has been disguised or concealed. No named sender and/or no
+      identifiable business was found.
+    fix: >-
+      Use a real display name and sign off with your company's registered name.
+    citation: "PECR reg. 23(a)"
+    check:
+      type: sender_identity
+
+  - id: UK-CONTACT-ADDRESS-MISSING
+    severity: error
+    title: No valid address for opt-out requests
+    what: >-
+      Regulation 23(b) requires a valid address to which the recipient can send
+      a request that the messages stop. The ICO expects a real postal or email
+      contact address, not a no-reply sender.
+    fix: >-
+      Put your registered office address in the footer alongside a monitored
+      reply address.
+    citation: "PECR reg. 23(b)"
+    check:
+      type: postal_address
+
+  - id: UK-DATA-SOURCE-NOT-STATED
+    severity: warn
+    title: The message does not say where the address came from
+    what: >-
+      UK GDPR Article 14 applies to data you did not collect from the person
+      themselves, and the ICO's direct marketing guidance treats an unexplained
+      source as an aggravating factor in complaints.
+    fix: >-
+      Say plainly where you found the address.
+    citation: "UK GDPR Art. 14(2)(f); ICO Direct Marketing Guidance"
+    check:
+      type: require_any
+      target: body
+      patterns:
+        - "(?:found|got|obtained|sourced|came across) your (?:address|email|details|contact|profile)"
+        - "where (?:i|we) (?:found|got)"
+        - "(?:from|on) your (?:website|site|contact page|public)"
+        - "public(?:ly available)? (?:register|directory|listing|record|profile)"
+        - "companies house"
+
+  - id: UK-SOLE-TRADER-RISK
+    severity: info
+    title: Sole traders and partnerships are treated as individuals under PECR
+    what: >-
+      The corporate-subscriber exemption that makes UK B2B cold email possible
+      does NOT cover sole traders or unincorporated partnerships. If your list
+      contains any, those rows need consent.
+    fix: >-
+      Segment the list by legal form before sending, and suppress sole traders
+      and unincorporated partnerships unless you hold consent.
+    citation: "PECR reg. 22(1); ICO guidance on B2B marketing"
+    check:
+      type: always
+      evidence:
+        - "advisory: verify the legal form of every UK recipient before sending"

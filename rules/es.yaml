@@ -1,0 +1,129 @@
+jurisdiction: es
+name: LSSI-CE Art. 20-21 + LOPDGDD (Spain)
+regime: consent
+summary: >-
+  Spain layers the LSSI-CE on top of the GDPR. Article 21 prohibits sending
+  commercial communications by email without prior express authorisation, with
+  one exception: an existing contractual relationship where you lawfully
+  obtained the address and are marketing similar products. Article 20 requires
+  the message to be clearly identifiable as advertising, to identify the
+  advertiser, and to carry the word "publicidad" or "publi" when the promotional
+  nature is not otherwise obvious.
+applies_to: ["ES"]
+
+rules:
+  - id: ES-CONSENT-NOT-EVIDENCED
+    severity: error
+    title: No prior authorisation or prior-relationship claim in the copy
+    what: >-
+      Article 21.1 bans unsolicited commercial email to Spanish recipients
+      unless they previously authorised it, or unless the address was lawfully
+      obtained in the course of a prior contractual relationship for similar
+      products. The copy asserts neither, so on its face this send is the
+      unlawful case.
+    fix: >-
+      Either send only to recipients whose consent you can evidence, or, where
+      the Article 21.2 exception applies, say so: "Le escribimos porque existe
+      una relacion contractual previa con ... / We are writing because you are
+      an existing customer."
+    citation: "Ley 34/2002 (LSSI-CE) Art. 21.1 and 21.2"
+    check:
+      type: require_any
+      target: body
+      patterns:
+        - "you (?:opted in|signed up|subscribed|consented|gave us permission|requested)"
+        - "with your (?:prior )?consent"
+        - "prior (?:express )?authoris"
+        - "existing (?:customer|client|contractual relationship)"
+        - "autorizaci[oó]n previa"
+        - "relaci[oó]n contractual previa"
+        - "consentimiento"
+
+  - id: ES-PUBLICIDAD-LABEL-MISSING
+    severity: error
+    title: The message is not labelled as advertising
+    what: >-
+      Article 20.1 requires commercial communications by email to be clearly
+      identifiable as such and, where the promotional nature is not otherwise
+      obvious from the start, to begin with the word "publicidad" or "publi".
+    fix: >-
+      Add the label at the top of the message, for example
+      "PUBLI - comunicacion comercial de Acme Widgets S.L."
+    citation: "Ley 34/2002 (LSSI-CE) Art. 20.1"
+    check:
+      type: require_any
+      target: searchable
+      patterns:
+        - "\\bpublicidad\\b"
+        - "\\bpubli\\b"
+        - "comunicaci[oó]n comercial"
+        - "commercial communication"
+        - "\\badvertis(?:ement|ing)\\b"
+
+  - id: ES-ADVERTISER-NOT-IDENTIFIED
+    severity: error
+    title: The advertiser on whose behalf the message is sent is not identified
+    what: >-
+      Article 20.1 requires the natural or legal person on whose behalf the
+      commercial communication is made to be identifiable. No named sender
+      and/or no identifiable business was found.
+    fix: >-
+      Name the legal entity, not just a first name and a calendar link.
+    citation: "Ley 34/2002 (LSSI-CE) Art. 20.1"
+    check:
+      type: sender_identity
+
+  - id: ES-REVOCATION-CHANNEL-MISSING
+    severity: error
+    title: No simple, free way to revoke consent
+    what: >-
+      Article 21.2 requires every commercial communication to offer a simple and
+      free procedure to oppose the processing, including an electronic address
+      dedicated to it.
+    fix: >-
+      Add a line such as "Para darse de baja escriba a baja@your-domain.example
+      o pulse aqui: https://your-domain.example/baja".
+    citation: "Ley 34/2002 (LSSI-CE) Art. 21.2 and Art. 22.1"
+    check:
+      type: unsubscribe_present
+      keywords:
+        - "unsubscribe"
+        - "opt[- ]?out"
+        - "darse de baja"
+        - "\\bbaja\\b"
+        - "revocar"
+        - "oponerse"
+        - "reply .{0,20}\\bstop\\b"
+
+  - id: ES-DATA-SOURCE-NOT-STATED
+    severity: error
+    title: The message does not say where the address came from
+    what: >-
+      The GDPR Article 14 duty applies in Spain as everywhere else in the EEA,
+      and the AEPD treats an unexplained source as an aggravating factor when
+      sanctioning unsolicited commercial email.
+    fix: >-
+      Name the source of the address in one sentence.
+    citation: "GDPR Art. 14(2)(f); LOPDGDD (LO 3/2018)"
+    check:
+      type: require_any
+      target: body
+      patterns:
+        - "(?:found|got|obtained|sourced|came across) your (?:address|email|details|contact|profile)"
+        - "(?:from|on) your (?:website|site|contact page|public)"
+        - "public(?:ly available)? (?:register|directory|listing|record|profile)"
+        - "hemos obtenido"
+        - "fuente de (?:los|sus) datos"
+
+  - id: ES-POSTAL-ADDRESS-MISSING
+    severity: warn
+    title: No postal address for the advertiser
+    what: >-
+      Article 10 of the LSSI-CE requires service providers to make their
+      establishment address available. Including it in the message itself is the
+      simplest way to satisfy a complaint.
+    fix: >-
+      Add the registered address to the footer.
+    citation: "Ley 34/2002 (LSSI-CE) Art. 10.1(a)"
+    check:
+      type: postal_address

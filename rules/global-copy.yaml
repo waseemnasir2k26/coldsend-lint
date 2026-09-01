@@ -1,0 +1,133 @@
+# Deliverability-adjacent copy rules. These are NOT legal requirements anywhere
+# and are reported under the deliverability heading on purpose. Always loaded,
+# whatever --jurisdiction is set to.
+jurisdiction: global
+name: Copy hygiene (deliverability, not law)
+regime: "n/a"
+always: true
+summary: >-
+  Filter-bait patterns that hurt inbox placement. Nothing here is a legal
+  finding; nothing here is a substitute for the jurisdiction rulesets.
+applies_to: []
+
+rules:
+  - id: COPY-MERGE-TAG-UNMERGED
+    severity: error
+    title: Unmerged personalisation token in the copy
+    what: >-
+      A merge tag survived into the final message. The recipient will see the
+      raw token, and any link built on it is dead.
+    fix: >-
+      Fix the field mapping, or add a fallback value for every token used.
+    citation: "coldsend-lint copy hygiene"
+    category: deliverability
+    check:
+      type: broken_merge_tags
+      patterns:
+        - "\\{\\{[^}\\n]{1,60}\\}\\}"
+        - "(?<!\\{)\\{[A-Za-z_][A-Za-z0-9_.]{1,40}\\}(?!\\})"
+        - "%%[A-Z_]{2,40}%%"
+        - "\\[\\[[^\\]\\n]{1,60}\\]\\]"
+        - "\\bINSERT_[A-Z_]+"
+        - "\\bTODO\\b"
+        - "\\bLorem ipsum\\b"
+
+  - id: COPY-SPAM-TRIGGER-PHRASES
+    severity: warn
+    title: Several spam-trigger phrases in one message
+    what: >-
+      Content filters weight these phrases heavily. One is survivable, a cluster
+      is what moves a message to the promotions tab or the spam folder.
+    fix: >-
+      Rewrite in plain, specific language. Name the problem you solve instead of
+      promising a result.
+    citation: "coldsend-lint copy hygiene"
+    category: deliverability
+    check:
+      type: spam_triggers
+      threshold: 3
+      phrases:
+        - "act now"
+        - "limited time"
+        - "risk[- ]free"
+        - "100% (?:free|guaranteed|satisfied)"
+        - "money[- ]back guarantee"
+        - "no obligation"
+        - "click here"
+        - "buy (?:now|direct)"
+        - "order now"
+        - "special promotion"
+        - "this is not spam"
+        - "dear friend"
+        - "congratulations"
+        - "you have been selected"
+        - "double your"
+        - "guaranteed (?:results|income|roi)"
+        - "make money"
+        - "cash bonus"
+        - "free (?:trial|gift|consultation|quote)"
+        - "urgent"
+        - "apply now"
+        - "call now"
+        - "\\$\\d[\\d,]*\\s*(?:k|million|/month|per month)"
+        - "increase (?:sales|revenue|traffic) by \\d+%"
+        - "no credit card"
+        - "winner"
+
+  - id: COPY-SHOUTING
+    severity: warn
+    title: ALL-CAPS words or repeated punctuation
+    what: >-
+      Shouting and !!! runs correlate with spam scoring and read as low-trust to
+      a human reader.
+    fix: >-
+      Use sentence case and single punctuation.
+    citation: "coldsend-lint copy hygiene"
+    category: deliverability
+    check:
+      type: shouting
+      min_caps_words: 3
+      allow:
+        - HTTP
+        - HTTPS
+        - GDPR
+        - PECR
+        - CASL
+        - LSSI
+        - LOPDGDD
+        - AEPD
+        - SPAM
+        - PUBLI
+        - PUBLICIDAD
+        - STOP
+
+  - id: COPY-TOO-MANY-LINKS
+    severity: warn
+    title: Too many links for a first-touch cold email
+    what: >-
+      Link-heavy first-contact mail is a strong spam signal, and every extra
+      link dilutes the single action you actually want.
+    fix: >-
+      Keep one call to action plus the unsubscribe and privacy links.
+    citation: "coldsend-lint copy hygiene"
+    category: deliverability
+    check:
+      type: link_density
+      max_links: 4
+
+  - id: COPY-IMAGE-HEAVY
+    severity: warn
+    title: Image-heavy or text-light message
+    what: >-
+      A message that is mostly images, or that carries images with almost no
+      text, is the classic shape of a filtered campaign. Images are also blocked
+      by default in most clients, so the message may render empty.
+    fix: >-
+      Send plain text for cold outreach. If you need an image, keep the text
+      above 250 characters and give every image alt text.
+    citation: "coldsend-lint copy hygiene"
+    category: deliverability
+    check:
+      type: image_ratio
+      max_images: 4
+      min_text_chars: 250

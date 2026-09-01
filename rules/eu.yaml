@@ -1,0 +1,134 @@
+jurisdiction: eu
+name: GDPR + ePrivacy Directive (European Economic Area)
+regime: consent
+summary: >-
+  Unsolicited commercial email to EEA recipients needs a lawful basis under the
+  GDPR and, under the ePrivacy Directive, prior consent for direct marketing to
+  natural persons. Several member states allow B2B outreach to a role address on
+  legitimate interests, but the sender still owes the recipient an Article 14
+  notice: who you are, why you are writing, where you got their data and how to
+  object. Opt-out alone is not a lawful basis.
+applies_to:
+  ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU",
+   "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES",
+   "SE", "IS", "LI", "NO"]
+
+rules:
+  - id: EU-LAWFUL-BASIS-NOT-STATED
+    severity: error
+    title: No lawful basis or consent claim in the copy
+    what: >-
+      Nothing in the message tells the recipient why you are allowed to process
+      their contact data. For EEA recipients you must be able to point at a
+      lawful basis, and if you are relying on legitimate interests you have to
+      say so and let them object.
+    fix: >-
+      State the basis in one plain sentence, for example "We are contacting you
+      on the basis of our legitimate interest in B2B outreach to logistics
+      operators; you can object at any time."
+    citation: "GDPR Art. 6(1)(a)/6(1)(f); Recital 47"
+    check:
+      type: require_any
+      target: body
+      patterns:
+        - "legitimate interest"
+        - "lawful basis"
+        - "legal basis"
+        - "you (?:opted in|signed up|subscribed|consented|gave us permission)"
+        - "with your consent"
+
+  - id: EU-DATA-SOURCE-NOT-STATED
+    severity: error
+    title: The message does not say where the address came from
+    what: >-
+      When personal data is not collected from the data subject, Article 14
+      requires you to tell them the source. For cold outreach this is the
+      "where did you get my address" line, and its absence is the single most
+      common complaint trigger.
+    fix: >-
+      Name the source explicitly, for example "I found your address on your
+      company's public contact page" or "your listing in the public trade
+      register".
+    citation: "GDPR Art. 14(2)(f)"
+    check:
+      type: require_any
+      target: body
+      patterns:
+        - "(?:found|got|obtained|sourced|came across) your (?:address|email|details|contact|profile)"
+        - "where (?:i|we) (?:found|got)"
+        - "(?:from|on) your (?:website|site|contact page|public)"
+        - "public(?:ly available)? (?:register|directory|listing|record|profile)"
+        - "source of (?:your|this) data"
+
+  - id: EU-PRIVACY-NOTICE-MISSING
+    severity: warn
+    title: No link to a privacy notice
+    what: >-
+      Article 14 information can be delivered by pointing to a privacy notice,
+      but there is no such link in the message.
+    fix: >-
+      Add "Privacy notice: https://your-domain.example/privacy" to the footer
+      and make sure that page explains cold-outreach processing specifically.
+    citation: "GDPR Art. 12(1), Art. 14(1)-(2)"
+    check:
+      type: require_any
+      target: raw_body
+      patterns:
+        - "privacy (?:policy|notice|statement)"
+        - "/privacy"
+        - "datenschutz"
+        - "politique de confidentialit"
+
+  - id: EU-RIGHT-TO-OBJECT-MISSING
+    severity: error
+    title: No right to object / erasure offered
+    what: >-
+      A recipient contacted on legitimate interests has an absolute right to
+      object to direct marketing, and that right must be brought to their
+      attention explicitly and separately from other information.
+    fix: >-
+      Add "Reply 'no' and I will delete your details and never contact you
+      again" or link a one-click objection page.
+    citation: "GDPR Art. 21(2)-(4); Art. 17"
+    check:
+      type: require_any
+      target: body
+      patterns:
+        - "right to object"
+        - "object (?:to|at any time)"
+        - "(?:delete|erase|remove) your (?:details|data|address|record)"
+        - "unsubscribe"
+        - "opt[- ]?out"
+
+  - id: EU-CONTROLLER-IDENTITY-MISSING
+    severity: error
+    title: The controller is not identified
+    what: >-
+      Article 14 requires the identity and contact details of the controller.
+      No named sender and/or no identifiable business was found in the message.
+    fix: >-
+      Sign off with your name, the legal entity name and a contact address or
+      website.
+    citation: "GDPR Art. 14(1)(a)"
+    check:
+      type: sender_identity
+
+  - id: EU-UNSUB-MISSING
+    severity: error
+    title: No opt-out mechanism in the message
+    what: >-
+      The ePrivacy Directive requires every direct-marketing message to offer a
+      simple, free means of refusing further messages.
+    fix: >-
+      Add an unsubscribe link or an explicit reply-to-stop instruction.
+    citation: "Directive 2002/58/EC Art. 13(2)"
+    check:
+      type: unsubscribe_present
+      keywords:
+        - "unsubscribe"
+        - "opt[- ]?out"
+        - "stop receiving"
+        - "no longer (?:wish|want) to (?:hear|receive)"
+        - "reply .{0,20}\\bstop\\b"
+        - "abmelden"
+        - "d[ée]sabonn"

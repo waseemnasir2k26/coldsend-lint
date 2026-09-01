@@ -1,0 +1,117 @@
+jurisdiction: us
+name: CAN-SPAM Act (United States)
+regime: opt-out
+summary: >-
+  Commercial email to US recipients is lawful without prior consent, but the
+  message must identify itself, tell the truth in its headers, carry a valid
+  physical postal address, and honour opt-outs within 10 business days.
+applies_to: ["US"]
+
+rules:
+  - id: US-UNSUB-MISSING
+    severity: error
+    title: No opt-out mechanism in the message
+    what: >-
+      CAN-SPAM requires every commercial message to contain a clear and
+      conspicuous explanation of how the recipient can opt out of future email.
+      No opt-out wording was found in the subject or body.
+    fix: >-
+      Add a visible opt-out line, for example
+      "Not relevant? Unsubscribe here: https://your-domain.example/unsubscribe"
+      and make sure the mechanism keeps working for at least 30 days after send.
+    citation: "15 U.S.C. sec. 7704(a)(3); 16 C.F.R. Part 316"
+    check:
+      type: unsubscribe_present
+      keywords:
+        - "unsubscribe"
+        - "opt[- ]?out"
+        - "stop receiving"
+        - "remove me"
+        - "no longer (?:wish|want) to (?:hear|receive)"
+        - "reply .{0,20}\\bstop\\b"
+
+  - id: US-UNSUB-NOT-ACTIONABLE
+    severity: error
+    title: Opt-out is mentioned but the recipient cannot act on it
+    what: >-
+      An opt-out is promised but there is no working link, mailto or reply
+      instruction attached to it. An opt-out the recipient cannot perform is
+      treated the same as having none.
+    fix: >-
+      Put a real, merged URL or mailto on the opt-out line, or offer an explicit
+      reply-based opt-out such as "reply STOP and you are off the list".
+    citation: "15 U.S.C. sec. 7704(a)(3)(A)(i)"
+    check:
+      type: unsubscribe_actionable
+      keywords:
+        - "unsubscribe"
+        - "opt[- ]?out"
+        - "stop receiving"
+        - "remove me"
+      reply_optout_patterns:
+        - "reply .{0,25}\\b(stop|unsubscribe|remove|no)\\b"
+        - "just say the word"
+        - "reply with .{0,15}(stop|unsubscribe|remove)"
+
+  - id: US-POSTAL-ADDRESS-MISSING
+    severity: error
+    title: No physical postal address
+    what: >-
+      CAN-SPAM makes a valid physical postal address a hard requirement in every
+      commercial message. A registered agent address or a P.O. box registered
+      with USPS both qualify. No street line, P.O. box or postcode was detected.
+    fix: >-
+      Add your business address to the footer, for example
+      "Acme Widgets Ltd, 118 Harbour Street, Suite 4, Portland, OR 97204".
+    citation: "15 U.S.C. sec. 7704(a)(5)(A)(iii)"
+    check:
+      type: postal_address
+
+  - id: US-DECEPTIVE-THREAD-PREFIX
+    severity: error
+    title: "Fake Re:/Fwd: prefix on a first-contact subject line"
+    what: >-
+      The subject claims to be a reply or a forward, but the message carries no
+      In-Reply-To or References header, so no such thread exists. A subject line
+      that misleads the recipient about the contents of the message is a
+      prohibited deceptive practice.
+    fix: >-
+      Drop the Re:/Fwd: prefix and write a subject that honestly describes the
+      message.
+    citation: "15 U.S.C. sec. 7704(a)(2); FTC Act sec. 5"
+    check:
+      type: deceptive_thread_prefix
+
+  - id: US-SENDER-IDENTITY-UNCLEAR
+    severity: error
+    title: The reader cannot tell who is sending or on whose behalf
+    what: >-
+      CAN-SPAM prohibits materially false or misleading header information and
+      requires the message to identify the sender. No named sender and/or no
+      identifiable business was found.
+    fix: >-
+      Sign off with your name, your company's legal name and your website.
+    citation: "15 U.S.C. sec. 7704(a)(1)"
+    check:
+      type: sender_identity
+
+  - id: US-ADVERTISEMENT-NOT-DISCLOSED
+    severity: warn
+    title: The message is not identified as an advertisement
+    what: >-
+      Unless the recipient gave affirmative consent, a commercial message must
+      give clear and conspicuous notice that it is an advertisement or
+      solicitation. No such notice was found.
+    fix: >-
+      Add a short line such as "This is a commercial message from Acme Widgets
+      Ltd." near the footer.
+    citation: "15 U.S.C. sec. 7704(a)(5)(A)(i)"
+    check:
+      type: require_any
+      target: searchable
+      patterns:
+        - "\\badvertis(?:ement|ing)\\b"
+        - "commercial (?:message|communication|email)"
+        - "\\bsolicitation\\b"
+        - "\\bpublicidad\\b"
+        - "sales (?:message|outreach)"

@@ -1,0 +1,1 @@
+cold-email deliverability spf dkim dmarc dnsbl gdpr can-spam casl pecr lssi email-compliance email-marketing outbound linter cli static-analysis sarif python devops

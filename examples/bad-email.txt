@@ -1,0 +1,21 @@
+From: sales@tinbridge.example
+To: ops@harbourline.example
+Subject: Re: your Q3 shipping spend
+
+Dear Friend,
+
+CONGRATULATIONS {{first_name}}, you have been selected for a 100% risk-free
+pilot of the Tinbridge freight dashboard!!!
+
+Act now - this limited time offer closes Friday. Click here for guaranteed
+results on your very first shipment:
+
+https://tinbridge.example/offer
+https://tinbridge.example/pricing
+https://tinbridge.example/case-studies
+https://tinbridge.example/demo
+https://tinbridge.example/webinar
+
+To unsubscribe, use the link below.
+
+{{unsubscribe_url}}
