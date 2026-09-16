@@ -2,6 +2,11 @@
 
 One CLI that checks a cold-email campaign on both axes before you send it: whether your sending domain is set up to be delivered, and whether your copy is legal for the countries your recipients are actually in.
 
+## Status
+
+Last reviewed: September 2026 · release v2026.09
+
+
 ```text
 $ coldsend-lint all tinbridge.example examples/bad-email.txt -j us,eu,ca --quiet
 
