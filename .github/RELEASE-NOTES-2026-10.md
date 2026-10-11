@@ -1,0 +1,5 @@
+- coldsend-lint is a Python CLI that lints a cold-email campaign on sending-domain deliverability (MX, SPF, DKIM, DMARC, PTR, DNSBL) and copy legality for us, eu, uk, es and ca rulesets. MIT licensed, public.
+- Reviewed October 2026: tree re-checked (coldsend_lint package, rules/ YAML, examples, pytest suite, LICENSE); the README's two external links (skynetjoe.com, Calendly) returned HTTP 200.
+- Known gaps, per the README's own Limitations: static analysis only and not legal advice; cannot verify unsubscribe links work; DNSBL results are point-in-time; SPF lookup counting does not expand nested includes; copy rules are English-first regex heuristics.
+- No CI workflow in the repo. pyproject.toml version (0.1.0) deliberately left alone; this release is a repo tag only.
+- Release housekeeping only: Status line, changelog and hire section links updated. No rules or code changes.
